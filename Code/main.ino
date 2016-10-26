@@ -3,31 +3,52 @@ SoftwareSerial xb(2, 3); // RX, TX
 #include "XBeePro.h"
 XBeePro xBeeObject;
 
+//String myID = "40F1ED40";
 String myID = "40F1ED40";
-//String myID = "40F1ED02";
-String confirmChar = "O";
-String data = "(Thu 23/9/16 0:20:42,123,27,82,29,1023,2,6,7,1)";
+String confirmChar = "OOOOOOOOO";
+String data = "(09:15:30,123,100,100,100,100,120)";
+unsigned long time = 0;
+
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);          //enable the hardware serial port
   xBeeObject.setupXbee();
+  pinMode(8, OUTPUT);
 }
 
 void loop() {
+   String commandValue = "";
+  if((unsigned long)(millis() - time) > 10000){
+
+       
   // put your main code here, to run repeatedly:
      xBeeObject.sendData(data);
-     delay(2000);
+   Serial.println(data);
+   time = millis();
+      
+    }
   if(xBeeObject.checkAvailable())
    {
-      String receiveData = xBeeObject.receiveData();
-      Serial.println(receiveData);//for debugging
-      delay(2000);
+      String receiveData = "";
+      receiveData = xBeeObject.receiveData();
+      Serial.println(receiveData);
+      
       if(receiveData == myID){
+        commandValue = xBeeObject.receiveData();
+//        if(commandValue == "000:1")
+//          {
+//            digitalWrite(8, HIGH);
+//          }
+//        else if(commandValue == "000:0")
+//          {
+//            digitalWrite(8, LOW);
+//          }
         xBeeObject.sendData(confirmChar);
-        delay(1000);
-        String commandValue = xBeeObject.receiveData();
-        Serial.println(commandValue);//for debugging
+        Serial.println(commandValue + "------");
         }
     }
+    
+  
 }
+
